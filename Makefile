@@ -1,14 +1,19 @@
-PROGRAMS = mymalloc
+CC=gcc
+CCFLAGS= -Wall -g
+SOURCES=$(wildcard *.c)
+OBJECTS=$(SOURCES:.c=.o)
+TARGET = memgrind 
 
-CC = gcc
-CFLAGS = -Wall 
+all: $(TARGET)
 
-%: %.c %.h
-	$(CC) $(CFLAGS) -o $@ $<
+$(TARGET): $(OBJECTS)
+	$(CC) -o $@ $^  
 
-.PHONY: all clean
+%.o: %.c %.h
+	$(CC) $(CCFLAGS) -c $<
 
-all: $(PROGRAMS)
+%.o: %.c
+	$(CC) $(CCFLAGS) -c $<
 
 clean:
-	@rm -f *.o $(PROGRAMS)
+	rm -f *.o $(TARGET)
