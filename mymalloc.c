@@ -2,8 +2,6 @@
 #include <string.h>
 #include "mymalloc.h"
 
-static char mainMemory[5000];
-
 void initializeMainMemory(){
     block firstBlock;
 
