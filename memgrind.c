@@ -122,9 +122,9 @@ void F() {
 
 //Runs every function 100 times, records the runtime for each workload, then prints out the average workload time
 int main(int argc, char** argv){ 
-	double start_time, end_time, run_time;
+	double start_time, end_time, run_time, total_time, mean_time;
+	total_time = 0;
 	int count;
-	double time[FULL_TEST_SIZE];
 	for(count = 0; count < FULL_TEST_SIZE; count++) {
 		start_time = getTime();
 		A();
@@ -135,12 +135,7 @@ int main(int argc, char** argv){
 		F();
 		end_time = getTime();
 		run_time = (double) end_time - (double) start_time;
-		time[count] = run_time;
-	}
-	double total_time = 0;
-	double mean_time;
-	for(count = 0; count < FULL_TEST_SIZE; count++) {
-		total_time += time[count];
+		total_time += run_time;
 	}
 	mean_time = (double) total_time / (double) FULL_TEST_SIZE;
 	printf("Average time per workload: %lf seconds\n", mean_time);
