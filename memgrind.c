@@ -14,7 +14,7 @@ double getTime() {
 	int time_received;
 	time_received = gettimeofday(&start, NULL);
 	if(time_received == 0) {
-		double start_time =  (double) start.tv_sec +  (double) (start.tv_usec * .000001);	
+		double start_time =  (double) start.tv_sec +  (double) (start.tv_usec * .000001);
 		return start_time;
 	}
 	else {
@@ -31,13 +31,13 @@ void A() {
 	for(count = 0; count < TEST_SIZE; count++) {
 		byte = (char*) malloc(sizeof(char));
 		free(byte);
-	}	
+	}
 }
 
 //malloc() 1 byte, store the pointer in an array 150 times, then free entire array
 void B() {
 	printf("\n\nInitiating test function B\n");
-	void *array[TEST_SIZE]; 
+	void *array[TEST_SIZE];
 	int count;
 	for(count = 0; count < TEST_SIZE; count++) {
 		array[count] = (void*) malloc(sizeof(char));
@@ -51,7 +51,7 @@ void B() {
 void C() {
 	printf("\n\nInitiating test function C\n");
 	void *array[TEST_SIZE];
-	int random;	
+	int random;
 	int malCount = 0;
 	while(malCount < TEST_SIZE) {
 		random = rand() % 2;
@@ -67,7 +67,7 @@ void C() {
 }
 
 //Randomly choose between a randomly-sized malloc() or free()ing a pointer, done 150 times
-void D(){ 
+void D(){
 	printf("\n\nInitiaing test function D\n");
 	void *array[TEST_SIZE];
 	int random, size;
@@ -100,12 +100,15 @@ void E() {
 }
 
 //Fills up memory, frees every other block, then attempts to malloc() a size between each free block size and the total available space
+
+//TODO: not sure this is right
+
 void F() {
 	printf("\n\nInitialing test function F\n");
 	int count;
 	void *array[TEST_SIZE];
 	void *ptr;
-	for(count = 0; count < TEST_SIZE; count++) {	
+	for(count = 0; count < TEST_SIZE; count++) {
 		array[count] = malloc(sizeof(MEMORY_SIZE / TEST_SIZE));
 	}
 	for(count = 0; count < TEST_SIZE; count+=2) {
@@ -115,29 +118,55 @@ void F() {
 		ptr = malloc(sizeof(MEMORY_SIZE / TEST_SIZE) * 2);
 	}
 	free(ptr);
-	for(count = 0; count < TEST_SIZE; count++) {	
+	for(count = 0; count < TEST_SIZE; count++) {
 		free(array[count]);
 	}
 }
 
 //Runs every function 100 times, records the runtime for each workload, then prints out the average workload time
-int main(int argc, char** argv){ 
-	double start_time, end_time, run_time, total_time, mean_time;
-	total_time = 0;
+int main(int argc, char** argv){
+	double all_start, all_end, start_time, end_time, mean_time = 0.0;
+	double total_time[6];
 	int count;
+	all_start = getTime();
 	for(count = 0; count < FULL_TEST_SIZE; count++) {
 		start_time = getTime();
 		A();
+		end_time = getTime();
+		total_time[0] += (double) end_time - (double) start_time;
+		start_time = getTime();
 		B();
+		end_time = getTime();
+		total_time[1] += (double) end_time - (double) start_time;
+		start_time = getTime();
 		C();
+		end_time = getTime();
+		total_time[2] += (double) end_time - (double) start_time;
+		start_time = getTime();
 		D();
+		end_time = getTime();
+		total_time[3] += (double) end_time - (double) start_time;
+		start_time = getTime();
 		E();
+		end_time = getTime();
+		total_time[4] += (double) end_time - (double) start_time;
+		start_time = getTime();
 		F();
 		end_time = getTime();
-		run_time = (double) end_time - (double) start_time;
-		total_time += run_time;
+		total_time[5] += (double) end_time - (double) start_time;
 	}
-	mean_time = (double) total_time / (double) FULL_TEST_SIZE;
-	printf("Average time per workload: %lf seconds\n", mean_time);
+	all_end = getTime();
+
+	int i;
+	char c = 'A';
+	for(i = 0; i < 6; i++){
+		printf("Average time to run workload %c: %lf seconds\n", c+i, (double) total_time[i] / (double) FULL_TEST_SIZE);
+		mean_time += total_time[i];
+	}
+
+	mean_time = mean_time / (double) FULL_TEST_SIZE;
+	printf("Average time for workloads: %lf seconds\n", mean_time);
+
+	printf("Total runtime: %lf seconds\n", (double) all_end - (double) all_start);
 	return 0;
 }
