@@ -2,6 +2,8 @@
 #include <string.h>
 #include "mymalloc.h"
 
+static char mainMemory[5000];
+
 void initializeMainMemory(){
     block firstBlock;
 
@@ -12,6 +14,17 @@ void initializeMainMemory(){
     firstBlock.size = sizeof(mainMemory) - sizeof(block);
 
     memcpy(mainMemory, &firstBlock, sizeof(block));
+}
+
+void printMemory() {
+	block* ptr = (block*) mainMemory;
+	while(ptr != NULL) {	
+		if(ptr->assigned == '1') 
+			printf("Block address: %p Not Free Block Size: %d\n", ptr->address, ptr->size);
+		else printf("Block address: %p Free Block size: %d\n", ptr->address, ptr->size);
+		ptr = ptr->next;
+	}
+	printf("\n");
 }
 
 void* mymalloc(size_t size, char* file, int line){
@@ -74,14 +87,16 @@ void myfree(void* address, char* file, int line){
             block* next = ptr->next;
 
             //try merging with next block
-            if(next != NULL && next->assigned == '0'){
+            while(next != NULL && next->assigned == '0'){
                 ptr->size += next->size + sizeof(block);
                 ptr->next = next->next;
-            }
+		next = ptr->next;
+            } 
             //try merging with previous block
-            if(prev != NULL && prev->assigned == '0'){
+            while(prev != NULL && prev->assigned == '0'){
                 prev->size += ptr->size + sizeof(block);
                 prev->next = ptr->next;
+		prev = prev->prev;
             }
             return;
         }
