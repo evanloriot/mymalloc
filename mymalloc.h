@@ -4,8 +4,6 @@
 #define malloc( x ) mymalloc( x, __FILE__, __LINE__ )
 #define free( x ) myfree( x, __FILE__, __LINE__ )
 
-static char mainMemory[5000];
-
 typedef struct _block{
     int size;
     char assigned;
@@ -19,5 +17,7 @@ void initializeMainMemory();
 void* mymalloc(size_t, char*, int);
 
 void myfree(void*, char*, int);
+
+void printMemory();
 
 #endif
