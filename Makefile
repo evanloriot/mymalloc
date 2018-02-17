@@ -1,19 +1,15 @@
-CC=gcc
-CCFLAGS= -Wall -g
-SOURCES=$(wildcard *.c)
-OBJECTS=$(SOURCES:.c=.o)
-TARGET = memgrind 
-
-all: $(TARGET)
+TARGET = memgrind
+OBJECTS  = mymalloc.o memgrind.o
+FLAGS = -Wall -Werror -fsanitize=address
 
 $(TARGET): $(OBJECTS)
-	$(CC) -o $@ $^  
-
-%.o: %.c %.h
-	$(CC) $(CCFLAGS) -c $<
-
-%.o: %.c
-	$(CC) $(CCFLAGS) -c $<
+	gcc $(FLAGS) -o $@ $^
 
 clean:
-	rm -f *.o $(TARGET)
+	rm -f $(TARGET) $(OBJECTS)
+
+%.o: %.c
+	gcc $(FLAGS) -c $<
+
+mymalloc.o: mymalloc.h
+memgrind.o: mymalloc.h
