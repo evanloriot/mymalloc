@@ -8,7 +8,7 @@
 #define FULL_TEST_SIZE 100
 #define MEMORY_SIZE 4968
 
-//Receives current time for use in determining runtime
+/*Receives current time for use in determining runtime */
 double getTime() {
 	struct timeval start;
 	int time_received;
@@ -23,7 +23,7 @@ double getTime() {
 	}
 }
 
-//malloc() 1 byte and immediately free it 150 times
+/*malloc() 1 byte and immediately free it 150 times */
 void A() {
 	printf("\n\nInitiating test function A\n");
 	char *byte;
@@ -31,77 +31,90 @@ void A() {
 	for(count = 0; count < TEST_SIZE; count++) {
 		byte = (char*) malloc(sizeof(char));
 		free(byte);
-	}
+	}	
+	
 }
 
-//malloc() 1 byte, store the pointer in an array 150 times, then free entire array
+/*malloc() 1 byte, store the pointer in an array TEST_SIZE times, then free entire array */
 void B() {
 	printf("\n\nInitiating test function B\n");
 	void *array[TEST_SIZE];
 	int count;
 	for(count = 0; count < TEST_SIZE; count++) {
 		array[count] = (void*) malloc(sizeof(char));
+	//	printMemory();
 	}
-	for(count = 0; count < TEST_SIZE; count++) {
+	for(count = 0; count < TEST_SIZE; count++) {	
 		free(array[count]);
+	//	printMemory();
 	}
+
 }
 
-//Randomly choose between a 1 byte malloc() or free()ing a byte pointer, done 150 times
+/*Randomly choose between a 1 byte malloc() or free()ing a byte pointer, done TEST_SIZE times */
 void C() {
 	printf("\n\nInitiating test function C\n");
 	void *array[TEST_SIZE];
 	int random;
 	int malCount = 0;
+	int ptr = 0;
 	while(malCount < TEST_SIZE) {
 		random = rand() % 2;
 		if(random == 1) {
-			array[malCount] = malloc(sizeof(char));
+			array[ptr] = malloc(sizeof(char));
 			malCount++;
+			ptr++;
 		} else {
-			free(array[(rand() % TEST_SIZE + 1) - 1]);
+			if(ptr > 0) {
+				ptr--;
+				free(array[ptr]);
+			}
 		}
 	}
-	for(malCount--; malCount > 0; malCount--)
+	for(malCount = 0; malCount < ptr; malCount++)
 		free(array[malCount]);
 }
 
-//Randomly choose between a randomly-sized malloc() or free()ing a pointer, done 150 times
+/*Randomly choose between a randomly-sized malloc() or free()ing a pointer, done TEST_SIZE times */
 void D(){
 	printf("\n\nInitiaing test function D\n");
 	void *array[TEST_SIZE];
 	int random, size;
 	int malCount = 0;
+	int ptr = 0;
 	while(malCount < TEST_SIZE) {
 		random = rand() % 2;
 		if(random == 1) {
 			size = rand() % 65;
-			array[malCount] = malloc(sizeof(size));
+			array[ptr] = malloc(sizeof(size));
 			malCount++;
+			ptr++;
 		} else {
-			free(array[(rand() % TEST_SIZE + 1) - 1]);
-		}
+			if(ptr > 0) {
+				ptr--;
+				free(array[ptr]);
+			}
+		}	
 	}
-	for(malCount--; malCount > 0; malCount--)
+	for(malCount = 0; malCount < ptr; malCount++)
 		free(array[malCount]);
 }
 
-//Fills up memory, then repeatedly attempts to malloc() a pointer with a size of 1
+/* Fills up memory, then repeatedly attempts to malloc() a 1 byte pointer */
 void E() {
 	printf("\n\nInitiaing test function E\n");
 	int count;
 	void *ptr1, *ptr2;
-	ptr1 = malloc(sizeof(MEMORY_SIZE));
+	ptr1 = malloc(MEMORY_SIZE);
 	for(count = 0; count < TEST_SIZE; count++) {
-		ptr2 = malloc(sizeof(1));
+		ptr2 = malloc(sizeof(char));	
 	}
 	free(ptr1);
 	free(ptr2);
 }
 
-//Fills up memory, frees every other block, then attempts to malloc() a size between each free block size and the total available space
-
-//TODO: not sure this is right
+/*Fills up memory, frees every other block, then attempts to malloc() 
+ * a size between each free block size and the total available space */
 
 void F() {
 	printf("\n\nInitialing test function F\n");
@@ -109,21 +122,25 @@ void F() {
 	void *array[TEST_SIZE];
 	void *ptr;
 	for(count = 0; count < TEST_SIZE; count++) {
-		array[count] = malloc(sizeof(MEMORY_SIZE / TEST_SIZE));
+		array[count] = malloc(sizeof(char));
 	}
+
 	for(count = 0; count < TEST_SIZE; count+=2) {
 		free(array[count]);
 	}
-	for(count--; count > 0; count--) {
-		ptr = malloc(sizeof(MEMORY_SIZE / TEST_SIZE) * 2);
-	}
-	free(ptr);
-	for(count = 0; count < TEST_SIZE; count++) {
+	
+	for(count = 0; count < TEST_SIZE; count+=2) {
+		ptr = malloc((MEMORY_SIZE - TEST_SIZE)*sizeof(char) + 2);
+		if(ptr != NULL)
+			free(ptr);
+	}	
+	for(count = 1; count < TEST_SIZE; count+=2) {	
 		free(array[count]);
 	}
 }
 
-//Runs every function 100 times, records the runtime for each workload, then prints out the average workload time
+/*Runs every function 100 times, records runtime for each workload, then prints 
+ * average time per function, average time per workload, and total runtime */
 int main(int argc, char** argv){
 	double all_start, all_end, start_time, end_time, mean_time = 0.0;
 	double total_time[6];
@@ -133,24 +150,29 @@ int main(int argc, char** argv){
 		start_time = getTime();
 		A();
 		end_time = getTime();
-		total_time[0] += (double) end_time - (double) start_time;
+		total_time[0] += (double) end_time - (double) start_time; 
+		
 		start_time = getTime();
 		B();
 		end_time = getTime();
-		total_time[1] += (double) end_time - (double) start_time;
+		total_time[1] += (double) end_time - (double) start_time; 
+ 
 		start_time = getTime();
 		C();
 		end_time = getTime();
 		total_time[2] += (double) end_time - (double) start_time;
+
 		start_time = getTime();
 		D();
 		end_time = getTime();
 		total_time[3] += (double) end_time - (double) start_time;
-		start_time = getTime();
+
+		start_time = getTime();  
 		E();
 		end_time = getTime();
-		total_time[4] += (double) end_time - (double) start_time;
-		start_time = getTime();
+		total_time[4] += (double) end_time - (double) start_time; 
+ 
+		start_time = getTime(); 
 		F();
 		end_time = getTime();
 		total_time[5] += (double) end_time - (double) start_time;
