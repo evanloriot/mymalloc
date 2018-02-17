@@ -73,6 +73,9 @@ void* mymalloc(size_t size, char* file, int line){
 
 void myfree(void* address, char* file, int line){
     block* ptr = (block*) mainMemory;
+    if(ptr != NULL && ptr->address != ptr + 1){
+        printf("No blocks allocated as of yet. Please allocate memory before freeing.\n");
+    }
     while(ptr != NULL){
         if(ptr->address == address){
             if(ptr->assigned == '0'){
@@ -90,13 +93,13 @@ void myfree(void* address, char* file, int line){
             while(next != NULL && next->assigned == '0'){
                 ptr->size += next->size + sizeof(block);
                 ptr->next = next->next;
-		next = ptr->next;
+		        next = ptr->next;
             } 
             //try merging with previous block
             while(prev != NULL && prev->assigned == '0'){
                 prev->size += ptr->size + sizeof(block);
                 prev->next = ptr->next;
-		prev = prev->prev;
+		        prev = prev->prev;
             }
             return;
         }
