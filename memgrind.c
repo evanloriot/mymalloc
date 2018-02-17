@@ -140,7 +140,7 @@ void F() {
 }
 
 /*Runs every function 100 times, records runtime for each workload, then prints 
- * average time per function, average time per workload, and total runtime */
+ * average time per workload, average time for all workloads, and total runtime */
 int main(int argc, char** argv){
 	double all_start, all_end, start_time, end_time, mean_time = 0.0;
 	double total_time[6];
