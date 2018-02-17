@@ -90,16 +90,20 @@ void myfree(void* address, char* file, int line){
             block* next = ptr->next;
 
             //try merging with next block
-            while(next != NULL && next->assigned == '0'){
+            if(next != NULL && next->assigned == '0'){
                 ptr->size += next->size + sizeof(block);
                 ptr->next = next->next;
-		        next = ptr->next;
+                if(next->next != NULL){
+                    next->next->prev = ptr;
+                }
             } 
             //try merging with previous block
-            while(prev != NULL && prev->assigned == '0'){
+            if(prev != NULL && prev->assigned == '0'){
                 prev->size += ptr->size + sizeof(block);
                 prev->next = ptr->next;
-		        prev = prev->prev;
+                if(ptr->next != NULL){
+                    ptr->next->prev = prev;
+                }
             }
             return;
         }
